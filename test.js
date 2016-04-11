@@ -1,36 +1,16 @@
-//var Excel = require('exceljs');
-//var data =require('./data');
 var _ = require('lodash');
-
-
-// construct a streaming XLSX workbook writer with styles and shared strings
-/*var options = {
-    filename: './streamed-workbook.xlsx',
-    useStyles: true,
-    useSharedStrings: true
-};
-var workbook = new Excel.stream.xlsx.WorkbookWriter(options);
-var worksheet = workbook.addWorksheet('Feuille 1','FF0000');
-
-worksheet.columns =[
-	{header:'Id',key:'id',width:10},//A
-	{header:'First Name',key:'firstName',width:32},//B
-	{header:'Last Name',key:'lastName',width:32},//C
-	{header:'Birth Date',key:'dob',width:43}//D
-];
-data.family.forEach(function(elt){
-	//console.log(elt);
-	worksheet.addRow(elt);
-});*/
-
 var extractDataFromFile = function(workbook){
-			var worksheet = workbook.addWorksheet('Feuille 1','FF0000');
+			var worksheet = workbook.getWorksheet('Feuille 1');//get the sheet named 'Feuille 1'
+
+			//Set the column contained in the file 
 			worksheet.columns =[
-	{header:'Id',key:'id',width:10},//A
-	{header:'First Name',key:'firstName',width:32},//B
-	{header:'Last Name',key:'lastName',width:32},//C
-	{header:'Birth Date',key:'dob',width:43}//D
-];
+				{header:'Id',key:'id',width:10},//A
+				{header:'First Name',key:'firstName',width:32},//B
+				{header:'Last Name',key:'lastName',width:32},//C
+				{header:'Birth Date',key:'dob',width:43}//D
+			];
+
+			//TODO try to define those variables dynamically
 			var firstNameCol = worksheet.getColumn('firstName');
 			var lastNameCol=worksheet.getColumn('lastName');
 			var dobCol = worksheet.getColumn('dob');
@@ -39,6 +19,7 @@ var extractDataFromFile = function(workbook){
 			var dob=[];
 			var workbookObj =[];
 
+			//get the data contained in each columns of the sheet
 			firstNameCol.eachCell(function(cell, rowNumber){
 				if(rowNumber){
 						firstName[rowNumber-1]=cell.value;
@@ -55,16 +36,17 @@ var extractDataFromFile = function(workbook){
 							dob[rowNumber-1]=cell.value;
 				}
 			});
+			//Discarding the column title (the first row of each column)
 			firstName=_.without(firstName,firstNameCol.header);
 			lastName =_.without(lastName, lastNameCol.header);
 			dob =_.without(dob, dobCol.header);
+			
+			//building an object which represent the data contained in the workseet
 			firstName.forEach(function(elt, index){
 				workbookObj.push({firstName:elt,lastName:lastName[index], dob:dob[index]});
 			});
 
-			console.log(JSON.stringify(workbookObj,2));
-
-			//workbook.commit();
+			return workbookObj;
 }
 
 
